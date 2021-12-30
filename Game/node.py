@@ -47,7 +47,7 @@ class ANode(INode):
     def __hash__(self):
         return hash(self._hit + self._start_time + self._end_time + self._init_trail)
 
-    def __eq__(self, obj: Any):
+    def __eq__(self, obj: Any) -> bool:
         if not isinstance(obj, ANode):
             return False
         return self._hit == obj._hit \
