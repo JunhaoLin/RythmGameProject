@@ -1,7 +1,9 @@
 # This is the class for nodes
 
 from abc import ABCMeta, abstractmethod
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Type
+
+from DataStructure.TimeCode import TimeCodeInSeconds, TimeCodeInMeasures
 
 
 
@@ -30,16 +32,24 @@ class ANode(INode):
     _hit: bool
     """hit represents whether this node was hit by the player"""
 
-    _start_time: float
+    _start_time: TimeCodeInMeasures
     """starting time for this node, used to check if player should hit this node"""
 
-    _end_time: float
+    _end_time: TimeCodeInMeasures
     """ending time for this node, used to check if player should release key"""
 
     _init_trail: int
     """initial trail of the node, to differentiate between nodes from other trails"""
 
-    def __init__(self, start, end, init_trail) -> None:
+    def __init__(self, start: TimeCodeInMeasures, end: TimeCodeInMeasures, init_trail: int) -> None:
+        if not isinstance(start, TimeCodeInMeasures):
+            raise TypeError('start must be a TimeCodeInMeasure')
+        if not isinstance(end, TimeCodeInMeasures):
+            raise TypeError('end must be a TimeCodeInMeasure')
+        if not isinstance(init_trail, int):
+            raise TypeError('init_trial must be an integer')
+        if start > end:
+            raise ValueError('starting time can not be latter than ending time')
         self._start_time = start
         self._end_time = end
         self._init_trail = init_trail

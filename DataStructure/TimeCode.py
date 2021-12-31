@@ -43,16 +43,47 @@ class TimeCodeInSeconds(ITimeCode):
         pass
 
 
-    class TimeCodeInMeasures(ITimeCode):
-        """Concrete implementation of a TimeCode, in MIDI format of measure-beat"""
+class TimeCodeInMeasures(ITimeCode):
+    """Concrete implementation of a TimeCode, in MIDI format of measure-beat"""
 
-        _num_measure: int
-        """Number of measure"""
+    _num_measure: int
+    """Number of measure"""
 
-        _num_beat: float
-        """Number of beats"""
+    _num_beat: float
+    """Number of beats"""
+
+    def __init__(self, num_measure, num_beat) -> None:
+        self._num_measure = num_measure
+        self._num_beat = num_beat
+    
+    def __hash__(self):
+        return hash(self._num_beat + self._num_measure)
+
+    def __eq__(self, obj: Any) -> bool:
+        if not isinstance(obj, TimeCodeInMeasures):
+            return False
+        return self._num_beat == obj._num_beat and self._num_measure == obj._num_measure
+
+    def __lt__(self, other):
+        if self._num_measure < other._num_measure:
+            return True
+        elif self._num_measure == other._num_measure:
+            return self._num_beat < other._num_beat
+        else:
+            return False
+
+    def __gt__(self, other):
+        if self._num_measure > other._num_measure:
+            return True
+        elif self._num_measure == other._num_measure:
+            return self._num_beat > other._num_beat
+        else:
+            return False
         
+    def get_time_in_seconds(self) -> float:
+        #TODO
+        pass
 
-        def __init__(self) -> None:
-            super().__init__()
+    def get_time_in_seconds(self) -> float:
+        return (self._num_measure, self._num_beat)
     
