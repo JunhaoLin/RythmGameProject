@@ -2,6 +2,8 @@
 
 from abc import ABCMeta, abstractmethod
 from typing import Any
+from UtilityClass import meter
+import math
 
 
 class ITimeCode(metaclass = ABCMeta):
@@ -38,9 +40,28 @@ class TimeCodeInSeconds(ITimeCode):
     def get_time_in_seconds(self) -> float:
         return self._num_second
     
-    def get_time_in_measure(self, bpm: int) -> tuple:
-        #TODO
-        pass
+    def get_time_in_measure(self, num_second: int, bpm: float, mt: meter) -> tuple:
+        """Method which convert time into measure. Parameter should be provided by score."""
+        #The duration of one single measure
+        time4oneMeasure = (120/bpm) * 2 * (mt.get_num_beats() / mt.get_beat_unit)
+
+        #Calculate how many complete measures there are
+        num_measure = math.floor(num_second / time4oneMeasure)
+
+        #The duration for remaining beats in the current measure
+        time4beats = num_second % time4oneMeasure
+
+        #The duration of one single beat
+        time4oneBeat = ((120/bpm)) * 2 / mt.get_beat_unit()
+
+        #Calculate the exact beat of this note
+        num_beat = math.floor(time4beats / time4oneBeat)
+
+        #As 0 stands for the first, return with values minusing 1
+        return (num_measure - 1, num_beat - 1)
+
+        
+
 
 
 class TimeCodeInMeasures(ITimeCode):
@@ -52,7 +73,9 @@ class TimeCodeInMeasures(ITimeCode):
     _num_beat: float
     """Number of beats"""
 
-    def __init__(self, num_measure, num_beat) -> None:
+    def __init__(self, num_measure: int, num_beat: float) -> None:
+        if not isinstance(num_measure, int) or not isinstance(num_beat, float):
+            raise TypeError('_num_beat must be an integer / _num_beat must be an float')
         self._num_measure = num_measure
         self._num_beat = num_beat
     
@@ -64,7 +87,7 @@ class TimeCodeInMeasures(ITimeCode):
             return False
         return self._num_beat == obj._num_beat and self._num_measure == obj._num_measure
 
-    def __lt__(self, other):
+    def __lt__(self, other: Any):
         if self._num_measure < other._num_measure:
             return True
         elif self._num_measure == other._num_measure:
@@ -72,7 +95,7 @@ class TimeCodeInMeasures(ITimeCode):
         else:
             return False
 
-    def __gt__(self, other):
+    def __gt__(self, other: Any):
         if self._num_measure > other._num_measure:
             return True
         elif self._num_measure == other._num_measure:
@@ -80,9 +103,9 @@ class TimeCodeInMeasures(ITimeCode):
         else:
             return False
         
-    def get_time_in_seconds(self) -> float:
-        #TODO
-        pass
+    def get_time_in_seconds(self, num_measure: int, num_beat: float, bpm: float, mt: meter) -> float:
+        return (240 / bpm) * ((mt.get_num_beats() * num_measure / mt.get_beat_unit())
+        + (num_beat / mt.get_beat_unit()))
 
     def get_time_in_seconds(self) -> float:
         return (self._num_measure, self._num_beat)
