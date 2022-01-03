@@ -43,7 +43,7 @@ class TimeCodeInSeconds(ITimeCode):
     def get_time_in_measure(self, num_second: int, bpm: float, mt: meter) -> tuple:
         """Method which convert time into measure. Parameter should be provided by score."""
         #The duration of one single measure
-        time4oneMeasure = (120/bpm) * 2 * (mt.get_num_beats() / mt.get_beat_unit)
+        time4oneMeasure = (240/bpm) * (mt.get_num_beats() / mt.get_beat_unit)
 
         #Calculate how many complete measures there are
         num_measure = math.floor(num_second / time4oneMeasure)
@@ -52,17 +52,15 @@ class TimeCodeInSeconds(ITimeCode):
         time4beats = num_second % time4oneMeasure
 
         #The duration of one single beat
-        time4oneBeat = ((120/bpm)) * 2 / mt.get_beat_unit()
+        time4oneBeat = (240/bpm) / mt.get_beat_unit()
 
         #Calculate the exact beat of this note
-        num_beat = math.floor(time4beats / time4oneBeat)
+        num_beat = time4beats / time4oneBeat
 
-        #As 0 stands for the first, return with values minusing 1
-        return (num_measure - 1, num_beat - 1)
+        #Return the time code in measure
+        return (num_measure, num_beat)
 
         
-
-
 
 class TimeCodeInMeasures(ITimeCode):
     """Concrete implementation of a TimeCode, in MIDI format of measure-beat"""
@@ -104,8 +102,7 @@ class TimeCodeInMeasures(ITimeCode):
             return False
         
     def get_time_in_seconds(self, num_measure: int, num_beat: float, bpm: float, mt: meter) -> float:
-        return (240 / bpm) * ((mt.get_num_beats() * num_measure / mt.get_beat_unit())
-        + (num_beat / mt.get_beat_unit()))
+        return (240/bpm) * ((mt.get_num_beats() * num_measure / mt.get_beat_unit()) + (num_beat / mt.get_beat_unit()))
 
     def get_time_in_seconds(self) -> float:
         return (self._num_measure, self._num_beat)
