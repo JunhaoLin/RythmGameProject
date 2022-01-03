@@ -40,10 +40,10 @@ class TimeCodeInSeconds(ITimeCode):
     def get_time_in_seconds(self) -> float:
         return self._num_second
     
-    def get_time_in_measure(self, num_second: int, bpm: float, mt: meter) -> tuple:
-        """Method which convert time into measure. Parameter should be provided by score."""
+    def get_time_in_measure(self, num_second: float, bpm: float, mt: meter) -> tuple:
+        """Method which convert time in seconds into measure. Parameter should be provided by score."""
         #The duration of one single measure
-        time4oneMeasure = (240/bpm) * (mt.get_num_beats() / mt.get_beat_unit)
+        time4oneMeasure = (240/bpm) * (mt.get_num_beats() / mt.get_beat_unit())
 
         #Calculate how many complete measures there are
         num_measure = math.floor(num_second / time4oneMeasure)

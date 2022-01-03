@@ -2,10 +2,12 @@
 # https://github.ccs.neu.edu/CS4500-F21/shoshone/blob/master/Trains/Other/func_utils.py
 # which is co-authored by me and others
 
+
 """A collection of utility functions for modifying the behavior of functions and methods."""
 
 from functools import lru_cache
 from typing import Any, Callable, Iterable, Set, TypeVar
+from DataStructure.util.UtilityClass import meter
 
 TypeValidator = Callable[[Any], bool]
 """Represents a function that validates a given type is of a certain type by returning a boolean."""
@@ -262,3 +264,14 @@ def is_dict_of(key_type_validator: TypeValidator, value_type_validator: TypeVali
     def dict_checker(maybe_dict: Any) -> bool:
         return isinstance(maybe_dict, dict) and all(key_type_validator(key) and value_type_validator(value) for key, value in maybe_dict.items())
     return dict_checker
+
+
+def is_meter(num_beat_type_validator: TypeValidator, beat_unit_type_validator: TypeValidator) -> TypeValidator:
+    type_contract(num_beat_type_validator, is_int)
+    type_contract(beat_unit_type_validator, is_int)
+
+    def meter_checker(maybe_meter: Any) -> bool:
+        return isinstance(maybe_meter, meter)
+    return meter_checker
+    
+
