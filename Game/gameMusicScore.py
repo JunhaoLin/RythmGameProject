@@ -1,6 +1,4 @@
-
-
-from typing import Dict, List
+from typing import Any, Dict, List
 from node import ANode
 from DataStructure.TimeCode import TimeCodeInMeasures
 from DataStructure.util.UtilityClass import meter
@@ -16,8 +14,12 @@ class gameMusicScore():
         self._meters = meters
 
     def __hash__(self):
-        hash_for_score:int
-        hash_for_score = 0
-        for node in self._all_nodes:
-            pass
-        return hash_for_score
+        return hash(self._all_nodes + self._meters)
+
+    def __eq__(self, obj: Any):
+        if not isinstance(obj, gameMusicScore):
+            return False
+        return self._all_nodes == obj._all_nodes \
+            and self._meters == obj._meters
+
+    
