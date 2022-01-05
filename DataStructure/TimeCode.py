@@ -1,7 +1,7 @@
 # This is the data representation of the time of the note according to measure（音节）
 
 from abc import ABCMeta, abstractmethod
-from typing import Any
+from typing import Any, Tuple
 from UtilityClass import meter
 import math
 
@@ -102,8 +102,10 @@ class TimeCodeInMeasures(ITimeCode):
             return False
         
     def get_time_in_seconds(self, num_measure: int, num_beat: float, bpm: float, mt: meter) -> float:
+        """Method to get time in the format of seconds."""
         return (240/bpm) * ((mt.get_num_beats() * num_measure / mt.get_beat_unit()) + (num_beat / mt.get_beat_unit()))
 
-    def get_time_in_seconds(self) -> float:
+    def get_time_in_measure(self) -> Tuple[int, float]:
+        """Returns the field of this object."""
         return (self._num_measure, self._num_beat)
     

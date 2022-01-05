@@ -50,6 +50,8 @@ class ANode(INode):
             raise TypeError('init_trial must be an integer')
         if start > end:
             raise ValueError('starting time can not be latter than ending time')
+        if init_trail < 1:
+            raise ValueError('note init trail number cannot be negative or zero')
         self._start_time = start
         self._end_time = end
         self._init_trail = init_trail
@@ -70,6 +72,19 @@ class ANode(INode):
 
     def got_hit(self) -> None:
         self._hit = True
+
+    # getters for class fields
+    def get_hit(self) -> bool:
+        return self._hit
+
+    def get_start_time(self) -> TimeCodeInMeasures:
+        return self._start_time
+
+    def get_end_time(self) -> TimeCodeInMeasures:
+        return self._end_time
+
+    def get_init_trail(self) -> int:
+        return self._init_trail
 
 
 
