@@ -32,7 +32,7 @@ class pianoGameMusicScore():
         
 
     def __hash__(self):
-        return hash(self._all_nodes + self._meters)
+        return hash(self._all_nodes + self._meters + self._num_trail)
 
     def __eq__(self, obj: Any):
         if not isinstance(obj, pianoGameMusicScore):
@@ -62,7 +62,20 @@ class pianoGameMusicScore():
         self._all_nodes = sorted_nodes
 
     def get_note_start_time_in_second(self, specific_node: ANode) -> float:
-        """Method to locate the starting time """
+        """Method to locate the starting time of a node in seconds"""
+        node_rank = self._all_nodes.index(specific_node)
+        return self.get_all_node_start_time_in_second[node_rank]
+
+    def get_note_end_time_in_second(self, specific_node: ANode) -> float:
+        """Method to locate the ending time of a node in seconds"""
+        pass
+
+    def get_all_node_start_time_in_second(self) -> List[float]:
+        """Method to locate the starting time of all nodes in seconds"""
+        pass
+
+    def get_all_node_end_time_in_second(self) -> List[float]:
+        """Method to locate the ending time of all nodes in seconds"""
         pass
     
         

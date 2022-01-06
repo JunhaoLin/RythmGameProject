@@ -21,13 +21,3 @@ def sort_node_list_by_start_time(loNode: List[ANode]) -> List[ANode]:
         
     return sorted_list
 
-    
-
-def sort_node_list_by_start_time_inseconds(list_nodes: List[ANode]) -> List[ANode]:
-    list_timecode = []
-    list_seconds = []
-    for node in list_nodes:
-        list_timecode.append(node.get_start_time())
-    
-    for timecodes in list_timecode:
-        pass
