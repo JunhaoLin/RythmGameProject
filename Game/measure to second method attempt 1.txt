@@ -1,0 +1,23 @@
+period_bpm_list_before: List[float]
+        
+        for periodBPM in self._bpms.keys():
+            if self._bpms.get(periodBPM) < specific_node.get_start_time:
+                period_bpm_list_before.add(periodBPM)
+
+
+        for periodBPM in period_bpm_list_before:
+            # Check the smallest beat unit involved
+
+            
+            # For every bpm-node, check how many beats are there
+            # num_beat_for_this_bpm: float
+
+            # The number of beats is one of:
+                #  - beats until the next node (if not the last in list)
+                #  - beats until the start of that music node (if is the last in list)
+            #if period_bpm_list_before.index(periodBPM) != period_bpm_list_before.len() - 1:
+            #    pass
+            #else:
+            #    pass
+                
+            #node_start_time = node_start_time + num_beat_for_this_bpm * 240 / (periodBPM * sp)

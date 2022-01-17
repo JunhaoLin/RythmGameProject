@@ -9,6 +9,7 @@ import math
 class ITimeCode(metaclass = ABCMeta):
     """This is the general interface to represent the time for notes"""
 
+    # ----------- Abstract Methods ------------
     @abstractmethod
     def get_time_in_seconds(self) -> float:
         """To get the exact time in the format of seconds"""
@@ -20,15 +21,21 @@ class ITimeCode(metaclass = ABCMeta):
         raise NotImplementedError
 
 
+
 class TimeCodeInSeconds(ITimeCode):
     """Concrete implementation of a TimeCode, where we can represents this timecode in seconds."""
     
+    # ------------- Fields ---------------
     _num_second: float
     """Number of seconds from the start of the score"""
 
+
+    # ----------- Constructor ------------
     def __init__(self, num_second) -> None:
         self._num_second = num_second
 
+
+    # ------------- Methods --------------
     def __hash__(self):
         return hash(self._num_second)
     
@@ -42,6 +49,7 @@ class TimeCodeInSeconds(ITimeCode):
     
     def get_time_in_measure(self, num_second: float, bpm: float, mt: meter) -> tuple:
         """Method which convert time in seconds into measure. Parameter should be provided by score."""
+        """!Note!: this assumes that the BPM and METER in previous part of score is fixed"""
         #The duration of one single measure
         time4oneMeasure = (240/bpm) * (mt.get_num_beats() / mt.get_beat_unit())
 
@@ -65,18 +73,23 @@ class TimeCodeInSeconds(ITimeCode):
 class TimeCodeInMeasures(ITimeCode):
     """Concrete implementation of a TimeCode, in MIDI format of measure-beat"""
 
+    # ------------- Fields ---------------
     _num_measure: int
     """Number of measure"""
 
     _num_beat: float
     """Number of beats"""
 
+
+    # ----------- Constructor ------------
     def __init__(self, num_measure: int, num_beat: float) -> None:
         if not isinstance(num_measure, int) or not isinstance(num_beat, float):
             raise TypeError('_num_beat must be an integer / _num_beat must be an float')
         self._num_measure = num_measure
         self._num_beat = num_beat
     
+    
+    # ------------- Methods --------------
     def __hash__(self):
         return hash(self._num_beat + self._num_measure)
 
@@ -84,6 +97,14 @@ class TimeCodeInMeasures(ITimeCode):
         if not isinstance(obj, TimeCodeInMeasures):
             return False
         return self._num_beat == obj._num_beat and self._num_measure == obj._num_measure
+
+    def get_num_measure(self) -> int:
+        """To get the number of measure of this time code in measure"""
+        return self._num_measure
+
+    def get_num_beat(self) -> float:
+        """To get the number of beats of this time code in measure"""
+        return self._num_beat
 
     def __lt__(self, other: Any):
         if self._num_measure < other._num_measure:
@@ -103,6 +124,7 @@ class TimeCodeInMeasures(ITimeCode):
         
     def get_time_in_seconds(self, num_measure: int, num_beat: float, bpm: float, mt: meter) -> float:
         """Method to get time in the format of seconds."""
+        """!Note!: This assumes that the BPM and the METER are fixed in the previous part of score."""
         return (240/bpm) * ((mt.get_num_beats() * num_measure / mt.get_beat_unit()) + (num_beat / mt.get_beat_unit()))
 
     def get_time_in_measure(self) -> Tuple[int, float]:

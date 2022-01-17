@@ -1,0 +1,225 @@
+from typing import Any, Dict, List
+from node import ANode
+from DataStructure.TimeCode import TimeCodeInMeasures
+from DataStructure.util.UtilityClass import meter
+from Game.Util.UtilityFunctions import sort_node_list_by_start_time
+
+class pianoGameMusicScore():
+    """This class represents the game score that is used by the interactive part of the game
+    This score is specifically for piano-like falling pattern.
+
+    Example:
+        | ~ |   |   |   |
+        |   | ~ |   | ~ |
+        |   |   | ~ |   |
+        |   |   |   |   |
+        |   | ~ | ~ |   |
+       
+        - This is a pianoGameMusicScore with 4 trails.
+        - Where `~` is a node which will fall down to the line and to be hit by players.
+    """
+
+    # -------------- Fields ----------------
+    _all_nodes: List[ANode]
+    _num_trail: int
+    _meters: Dict[TimeCodeInMeasures, meter]
+    _bpms: Dict[TimeCodeInMeasures, float]
+
+    _node_start_time_in_seconds: Dict[ANode, float]
+    _node_end_time_in_seconds: Dict[ANode, float]
+    
+
+    # ------------ Constructor -------------
+    def __init__(self, all_nodes: List[ANode], num_trail: int, meters: Dict[TimeCodeInMeasures, meter], \
+            bpms: Dict[TimeCodeInMeasures, float]) -> None:
+        self._all_nodes = sort_node_list_by_start_time(all_nodes)
+        self._num_trail = num_trail
+        self._meters = meters
+        self._bpms = bpms
+        
+        self._node_start_time_in_seconds = self.get_all_node_start_time_in_second()
+        self._node_end_time_in_seconds = self.get_all_node_end_time_in_second()
+
+        if not self.validate_piano_score():
+            raise ValueError('Parameters of this object is illegal')
+        
+
+    # -------------- Methods ---------------
+    def __hash__(self):
+        return hash(self._all_nodes + self._num_trail + self._meters + self._bpms)
+
+    def __eq__(self, obj: Any):
+        if not isinstance(obj, pianoGameMusicScore):
+            return False
+        return self._all_nodes == obj._all_nodes \
+            and self._num_trail == obj._num_trail \
+            and self._meters == obj._meters \
+            and self._bpms == obj._bpms
+
+    def validate_piano_score(self) -> bool:
+        """Method to validate the legality of a pianoGameMusicScore object."""
+        for node in self._all_nodes:
+            if not isinstance(node, ANode) \
+                or node.get_init_trail > self._num_trail:
+                return False
+
+        if not isinstance(self._num_trail, int):
+            return False
+
+        for timecode, meters in zip(list(self._meters.keys()), list(self._meters.values())):
+            if not isinstance(timecode, TimeCodeInMeasures) or not isinstance(meters, meter):
+                return False
+
+        for timecode, bpms in zip(list(self._bpms.keys()), list(self._bpms.values())):
+            if not isinstance(timecode, TimeCodeInMeasures) or not isinstance(bpms, float):
+                return False
+
+        return True
+ 
+
+    def sort_all_nodes_in_score(self) -> None:
+        """Method to sort all the nodes in the score according to the start time"""
+        sorted_nodes = sort_node_list_by_start_time(self._all_nodes)
+        self._all_nodes = sorted_nodes
+
+    def get_note_start_time_in_second(self, specific_node: ANode) -> float:
+        """Method to locate the starting time of a node in seconds"""
+        node_start_time: float
+
+        # Get the location of starting time of the node in time_in_measure_and_beat
+        measure_location = specific_node.get_start_time().get_num_measure()
+        beat_location = specific_node.get_start_time().get_num_beat()
+
+        # Get the time used in every complete measure
+        # As well as the remaining beats in the measure where the note_start is located
+        i = 0
+        while i <= measure_location - 1:
+            node_start_time = node_start_time + self.get_measure_duration(i)
+              
+        node_start_time = node_start_time + self.get_beat_in_a_measure_duration(i, beat_location)
+
+        return node_start_time
+
+    def get_measure_duration(self, measure_sequence: int) -> float:
+        """Method to get the duration of a specific measure in seconds"""
+        measure_duration: float
+
+        # 1, Get all the bpm_point in the measure: Dict[beat location, bpm value]
+        # The first bpm_point is one of:
+        #   - bpm_point at the 0-beat (this is guaranteed for the first measure)
+        #   - the last bpm_point in the previous measure
+        bpm_points_for_this_measure: Dict[float, float]
+        
+        for bpm_point in self._bpms:
+            if bpm_point.get_num_measure == measure_sequence:
+                bpm_points_for_this_measure.update(bpm_point.get_num_beat, self._bpms.get(bpm_point))
+                ####UPDATE是这么用的吗
+        
+        # If the first bpm point in this measure is not at start, get that from the last of previous measure
+        if List(bpm_points_for_this_measure.keys())[0] != 0.0:
+            bpms_for_last_measure: List[float]
+            for bpm_point in self._bpms:
+                if bpm_point.get_num_measure == measure_sequence:
+                    bpms_for_last_measure.add(self._bpms.get(bpm_point))
+            
+            bpm_points_for_this_measure.update(0.0, bpms_for_last_measure[bpms_for_last_measure.length() - 1])
+            ####UPDATE是这么用的吗
+
+        # 2, Calculate the time lapsed for every alternation of bpm
+        # for bpm_point
+
+
+        return measure_duration
+
+    def get_beat_in_a_measure_duration(self, measure_sequence: int, beat_location: float) -> float:
+        """Method to get the duration of some number of beats in a specific measure in seconds"""
+        pass
+        
+    def get_note_end_time_in_second(self, specific_node: ANode) -> float:
+        """Method to locate the ending time of a node in seconds"""
+        pass
+
+    def get_all_node_start_time_in_second(self) -> Dict[ANode, float]:
+        """Method to locate the starting time of all nodes in seconds"""
+        node_and_seconds: Dict[ANode, float]
+        
+        for node in self._all_nodes:
+            node_and_seconds[node] = self.get_note_start_time_in_second(node)
+
+        return node_and_seconds
+
+    def get_all_node_end_time_in_second(self) -> Dict[ANode, float]:
+        """Method to locate the ending time of all nodes in seconds"""
+        node_and_seconds: Dict[ANode, float]
+
+        for node in self._all_nodes:
+            node_and_seconds[node] = self.get_note_end_time_in_second(node)
+            
+        return node_and_seconds
+    
+        
+        
+
+class FBPMPianoGameMusicScore(pianoGameMusicScore):
+    """A specific kind of game score which allows fixed bpm music"""
+
+    # --------------- Fields -----------------
+    _all_nodes: List[ANode]
+    _num_trail: int
+    _fix_meter: meter
+    _fix_bpm: float
+
+    _node_start_time_in_seconds: Dict[ANode, float]
+    _node_end_time_in_seconds: Dict[ANode, float]
+
+
+    # ------------- Constructor --------------
+    def __init__(self, all_nodes: List[ANode], num_trail: int, fix_meter: meter, fix_bpm: float) -> None:
+        self._all_nodes = sort_node_list_by_start_time(all_nodes)
+        self._num_trail = num_trail
+        self._fix_meter = fix_meter
+        self._fix_bpm = fix_bpm
+        
+        self._node_start_time_in_seconds = self.get_all_node_start_time_in_second()
+        self._node_end_time_in_seconds = self.get_all_node_end_time_in_second()
+
+        if not self.validate_piano_score():
+            raise ValueError('Parameters of this object is illegal')
+
+
+    # --------- Overwritten methods ----------
+    def __hash__(self):
+        return hash(self._all_nodes, self._num_trail, self._fix_meter, self._fix_bpm)
+
+    def __eq__(self, obj: Any):
+        if not isinstance(obj, FBPMPianoGameMusicScore):
+            return False
+        return self._all_nodes == obj._all_nodes \
+            and self._num_trail == obj._num_trail \
+            and self._fix_meter == obj._fix_meter \
+            and self._fix_bpm == obj._fix_bpm
+
+    def validate_piano_score(self) -> bool:
+        """Method to validate the legality of a pianoGameMusicScore object."""
+        for node in self._all_nodes:
+            if not isinstance(node, ANode) \
+                or node.get_init_trail > self._num_trail:
+                return False
+
+        if not isinstance(self._num_trail, int):
+            return False
+       
+        if not isinstance(self._fix_meter, meter):
+            return False
+
+        if not isinstance(self._fix_bpm, float):
+            return False
+
+        return True
+
+
+    def get_note_start_time_in_second(self, specific_node: ANode) -> float:
+        pass
+
+    def get_note_end_time_in_second(self, specific_node: ANode) -> float:
+        pass

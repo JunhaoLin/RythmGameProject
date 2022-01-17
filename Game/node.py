@@ -15,6 +15,7 @@ class INode(metaclass=ABCMeta):
         Hold Node: player needs to hold the key for a while
     """
     
+    # ---------- Abstract Methods -------------
     @abstractmethod
     def missed(self) -> None:
         """Method that decides this node was missed by the player"""
@@ -25,10 +26,12 @@ class INode(metaclass=ABCMeta):
         """Method that decides this node was hit by the player"""
         raise NotImplementedError
 
-class ANode(INode):
-    """The abstract class for node, where common features and functionalities are placed
-    """
 
+
+class ANode(INode):
+    """The abstract class for node, where common features and functionalities are placed"""
+
+    # ------------ Fields --------------
     _hit: bool
     """hit represents whether this node was hit by the player"""
 
@@ -41,6 +44,8 @@ class ANode(INode):
     _init_trail: int
     """initial trail of the node, to differentiate between nodes from other trails"""
 
+
+    # ---------- Constructor -----------
     def __init__(self, start: TimeCodeInMeasures, end: TimeCodeInMeasures, init_trail: int) -> None:
         if not isinstance(start, TimeCodeInMeasures):
             raise TypeError('start must be a TimeCodeInMeasure')
@@ -56,6 +61,8 @@ class ANode(INode):
         self._end_time = end
         self._init_trail = init_trail
     
+
+    # ------------ Methods -------------
     def __hash__(self):
         return hash(self._hit + self._start_time + self._end_time + self._init_trail)
 
@@ -73,7 +80,6 @@ class ANode(INode):
     def got_hit(self) -> None:
         self._hit = True
 
-    # getters for class fields
     def get_hit(self) -> bool:
         return self._hit
 
